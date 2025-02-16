@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-Source Data Analytics Chatbot</title>
+    <style>
+        /* Enhanced styles for a more engaging UI/UX */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1), transparent 70%);
+            animation: rotate 20s infinite linear;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        .hero h1 {
+            font-size: 3.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .hero h2 {
+            font-weight: 300;
+            font-size: 1.5em;
+        }
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
+            color: white;
+            opacity: 0.7;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+            40% { transform: translate(-50%, -10px); }
+            60% { transform: translate(-50%, -5px); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: -80px auto 40px;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease-in-out forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .column {
+            flex: 1;
+            margin: 20px;
+            min-width: 280px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .column:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 14px 50px 14px 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            font-size: 1em;
+            background: #fff;
+        }
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 8px rgba(102,126,234,0.2);
+        }
+        .input-group button {
+            padding: 14px 30px;
+            background-color: #667eea;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(102,126,234,0.3);
+        }
+        .input-group button:hover {
+            background-color: #5a67d8;
+            box-shadow: 0 6px 12px rgba(102,126,234,0.4);
+        }
+        .input-group img {
+            position: absolute;
+            right: 20px;
+            top: 45px;
+            cursor: pointer;
+            transition: transform 0.3s, filter 0.3s;
+            width: 24px;
+            height: 24px;
+        }
+        .input-group img:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+        .analysis {
+            margin-top: 40px;
+            width: 100%;
+        }
+        .wordcloud, .graph {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 30px auto;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .content-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            animation: fadeIn 1s ease-in-out;
+        }
+        .content-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .content-section p, .content-section ul, .content-section pre {
+            color: #555;
+            font-size: 1em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .content-section ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            background-color: #333;
+            color: white;
+            border-radius: 0 0 15px 15px;
+            width: 100%;
+            font-size: 0.9em;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+        }
+        .response-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            resize: vertical;
+            min-height: 150px;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .response-box:hover {
+            background-color: #f9f9f9;
+        }
+        .feedback-buttons button {
+            margin-right: 10px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1em;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .feedback-buttons button:nth-child(2) {
+            background-color: #28c76f;
+            color: white;
+        }
+        .feedback-buttons button:nth-child(2):hover {
+            background-color: #20a65f;
+            transform: translateY(-2px);
+        }
+        .feedback-buttons button:nth-child(3) {
+            background-color: #ea5455;
+            color: white;
+        }
+        .feedback-buttons button:nth-child(3):hover {
+            background-color: #d43d3d;
+            transform: translateY(-2px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a67d8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 10px;
+                margin-top: -50px;
+            }
+            .column {
+                margin: 10px 0;
+            }
+            .hero h1 {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Multi-Source Data Analytics Chatbot</h1>
+            <h2>by Sriam Rampelli</h2>
+            <div class="scroll-down">Scroll Down ⬇️</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- General Question Area -->
+        <div class="column">
+            <div class="input-group">
+                <label for="question">Ask a General Question:</label>
+                <input type="text" id="question" placeholder="Type your question here...">
+                <img src="static/mic_icon.jpeg" alt="Mic" id="mic-icon">
+                <button onclick="askQuestion()">Submit</button>
+            </div>
+
+            <!-- Fact-based Question Area -->
+            <div class="input-group">
+                <label for="fact-question">Ask a Fact-based Question:</label>
+                <input type="text" id="fact-question" placeholder="Ask about presidents, capitals, etc...">
+                <img src="static/mic_icon.jpeg" alt="Mic" id="fact-mic-icon">
+                <button onclick="askFactQuestion()">Submit</button>
+            </div>
+        </div>
+
+        <!-- Doctor's Prescription Area -->
+        <div class="column">
+            <div class="input-group">
+                <label for="prescription">Upload Doctor's Prescription:</label>
+                <input type="file" id="prescription">
+                <button onclick="uploadPrescription()">Upload</button>
+            </div>
+
+            <!-- Ask General Medical Questions -->
+            <div class="input-group">
+                <label for="medical-question">Ask General Medical Questions:</label>
+                <input type="text" id="medical-question" placeholder="Ask about symptoms, medications, etc...">
+                <button onclick="askMedicalQuestion()">Ask</button>
+            </div>
+
+            <!-- Ask Question About Prescription -->
+            <div class="input-group">
+                <label for="prescription-question">Ask About Prescription:</label>
+                <input type="text" id="prescription-question" placeholder="Ask about the prescription...">
+                <button onclick="askPrescriptionQuestion()">Ask</button>
+            </div>
+        </div>
+
+        <!-- Document and Website Areas -->
+        <div class="column">
+            <!-- Upload Document -->
+            <div class="input-group">
+                <label for="document">Upload a Document:</label>
+                <input type="file" id="document">
+                <button onclick="uploadDocument()">Upload</button>
+            </div>
+
+            <!-- Scrape Website -->
+            <div class="input-group">
+                <label for="website">Scrape a Website:</label>
+                <input type="text" id="website" placeholder="Enter website URL...">
+                <button onclick="scrapeWebsite()">Scrape</button>
+            </div>
+
+            <!-- Ask Question About Uploaded/Scraped Content -->
+            <div class="input-group">
+                <label for="context-question">Ask a Question About the Content:</label>
+                <input type="text" id="context-question" placeholder="Type your question here...">
+                <button onclick="askContextQuestion()">Ask</button>
+            </div>
+        </div>
+
+        <!-- Response Area -->
+        <div class="column">
+            <div class="input-group">
+                <label for="response">Response:</label>
+                <textarea id="response" class="response-box" rows="10" readonly></textarea>
+            </div>
+
+            <!-- Feedback Area -->
+            <div class="input-group feedback-buttons">
+                <label for="feedback">Was this answer helpful?</label>
+                <button onclick="sendFeedback(true)">Yes</button>
+                <button onclick="sendFeedback(false)">No</button>
+            </div>
+        </div>
+
+        <!-- Analysis Results -->
+        <div class="analysis" id="analysis"></div>
+
+        <!-- Google Feedback Form Link -->
+        <div class="content-section" style="width: 100%;">
+            <h2>Feedback Form</h2>
+            <p>Please provide your feedback using the link below:</p>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSc0KmPj4oIYSZ1gn3AmC6hpy7WKOQ0ytnqS4IcsdZ3NYMbAvA/viewform?usp=sf_link" target="_blank">Feedback Form</a>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2023 Multi-Source Data Analytics Chatbot. All rights reserved.
+    </footer>
+
+    <script>
+        const micIcon = document.getElementById('mic-icon');
+        const factMicIcon = document.getElementById('fact-mic-icon');
+        const questionInput = document.getElementById('question');
+        const factQuestionInput = document.getElementById('fact-question');
+        const contextQuestionInput = document.getElementById('context-question');
+        const prescriptionInput = document.getElementById('prescription');
+        const prescriptionQuestionInput = document.getElementById('prescription-question');
+        const responseArea = document.getElementById('response');
+        const analysisDiv = document.getElementById('analysis');
+        let recognition;
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                if (recognition.targetInput) {
+                    recognition.targetInput.value = event.results[0][0].transcript;
+                    recognition.stop();
+                }
+            };
+
+            recognition.onerror = function(event) {
+                recognition.stop();
+            };
+        }
+
+        micIcon.onclick = function() {
+            if (recognition) {
+                recognition.targetInput = questionInput;
+                recognition.start();
+            }
+        };
+
+        factMicIcon.onclick = function() {
+            if (recognition) {
+                recognition.targetInput = factQuestionInput;
+                recognition.start();
+            }
+        };
+
+        function askQuestion() {
+            const question = questionInput.value;
+            fetch('/generate_text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt: question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.confidence < 0.7) {
+                    responseArea.value = "I'm not sure about the answer. Can you please provide more details or clarify your question?";
+                } else {
+                    responseArea.value = data.result;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                responseArea.value = "An error occurred while processing your request.";
+            });
+        }
+
+        function askFactQuestion() {
+            const question = factQuestionInput.value;
+            fetch('/fact_question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseArea.value = data.answer || data.error;
+            })
+            .catch(error => {
+                responseArea.value = "An error occurred while processing your request.";
+                console.error('Error:', error);
+            });
+        }
+
+        function askContextQuestion() {
+            const question = contextQuestionInput.value;
+            fetch('/ask_question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseArea.value = data.answer || data.error;
+            })
+            .catch(error => {
+                responseArea.value = "An error occurred while processing your request.";
+                console.error('Error:', error);
+            });
+        }
+
+        function uploadDocument() {
+            const documentInput = document.getElementById('document');
+            const formData = new FormData();
+            formData.append('document', documentInput.files[0]);
+
+            fetch('/read_document', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    responseArea.value = data.error;
+                } else {
+                    responseArea.value = "Document uploaded and analyzed successfully.";
+                    if (data.analysis) {
+                        displayAnalysis(data.analysis);
+                    } else {
+                        responseArea.value = "No analysis available.";
+                    }
+                }
+            })
+            .catch(error => {
+                responseArea.value = "An error occurred while uploading the document.";
+                console.error('Error:', error);
+            });
+        }
+
+        function scrapeWebsite() {
+            const website = document.getElementById('website').value;
+            fetch('/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: website })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    responseArea.value = data.error;
+                } else {
+                    responseArea.value = "Website scraped and analyzed successfully.";
+                    displayScrapeAnalysis(data);
+                }
+            })
+            .catch(error => {
+                responseArea.value = "An error occurred while scraping the website.";
+                console.error('Error:', error);
+            });
+        }
+
+        function askPrescriptionQuestion() {
+            const question = prescriptionQuestionInput.value;
+            fetch('/ask_prescription_question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseArea.value = data.answer || data.error;
+            })
+            .catch(error => {
+                responseArea.value = "An error occurred while processing your request.";
+                console.error('Error:', error);
+            });
+        }
+
+        function uploadPrescription() {
+            const formData = new FormData();
+            formData.append('prescription', prescriptionInput.files[0]);
+
+            fetch('/read_prescription', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    responseArea.value = data.error;
+                } else {
+                    responseArea.value = "Prescription uploaded and analyzed successfully.";
+                    if (data.analysis) {
+                        displayPrescriptionAnalysis(data.analysis);
+                    } else {
+                        responseArea.value = "No analysis available.";
+                    }
+                }
+            })
+            .catch(error => {
+                responseArea.value = "An error occurred while uploading the prescription.";
+                console.error('Error:', error);
+            });
+        }
+
+        function askMedicalQuestion() {
+            const question = document.getElementById('medical-question').value;
+
+            fetch('/ask_medical_question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseArea.value = data.answer || data.error;
+            })
+            .catch(error => {
+                responseArea.value = "An error occurred while processing your request.";
+                console.error('Error:', error);
+            });
+        }
+
+        function displayScrapeAnalysis(data) {
+            analysisDiv.innerHTML = '';
+            if (data.title) {
+                analysisDiv.innerHTML += `<div class="content-section"><h2>Title:</h2><p>${data.title}</p></div>`;
+            }
+
+            if (data.summary) {
+                analysisDiv.innerHTML += `<div class="content-section"><h2>Summary:</h2><p>${data.summary}</p></div>`;
+            }
+
+            if (data.sentiment) {
+                analysisDiv.innerHTML += `
+                    <div class="content-section">
+                        <h2>Sentiment Analysis:</h2>
+                        <p>Polarity: ${data.sentiment.polarity}</p>
+                        <p>Subjectivity: ${data.sentiment.subjectivity}</p>
+                    </div>`;
+            }
+
+            if (data.wordcloud) {
+                const img = document.createElement('img');
+                img.src = `data:image/png;base64,${data.wordcloud}`;
+                img.alt = 'Word Cloud';
+                img.className = 'graph';
+                analysisDiv.appendChild(img);
+            }
+
+            if (data.headings && data.headings.length > 0) {
+                let headingsHtml = '<div class="content-section"><h2>Headings:</h2><ul>';
+                data.headings.forEach(heading => {
+                    headingsHtml += `<li>${heading}</li>`;
+                });
+                headingsHtml += '</ul></div>';
+                analysisDiv.innerHTML += headingsHtml;
+            }
+
+            if (data.links && data.links.length > 0) {
+                let linksHtml = '<div class="content-section"><h2>Links:</h2><ul>';
+                data.links.forEach(link => {
+                    linksHtml += `<li><a href="${link}" target="_blank">${link}</a></li>`;
+                });
+                linksHtml += '</ul></div>';
+                analysisDiv.innerHTML += linksHtml;
+            }
+        }
+
+        function displayPrescriptionAnalysis(analysis) {
+            analysisDiv.innerHTML = '';
+
+            if (analysis.patient_info) {
+                let patientInfoHtml = '<div class="content-section"><h2>Patient Information:</h2><ul>';
+                for (const [key, value] of Object.entries(analysis.patient_info)) {
+                    patientInfoHtml += `<li><strong>${key}:</strong> ${value}</li>`;
+                }
+                patientInfoHtml += '</ul></div>';
+                analysisDiv.innerHTML += patientInfoHtml;
+            }
+
+            if (analysis.medications && analysis.medications.length > 0) {
+                let medsHtml = '<div class="content-section"><h2>Medications Prescribed:</h2><ul>';
+                analysis.medications.forEach(med => {
+                    medsHtml += `<li><strong>${med.Name}</strong> - ${med.Dosage}</li>`;
+                });
+                medsHtml += '</ul></div>';
+                analysisDiv.innerHTML += medsHtml;
+            }
+
+            if (analysis.health_metrics) {
+                let metricsHtml = '<div class="content-section"><h2>Health Metrics:</h2><ul>';
+                for (const [key, value] of Object.entries(analysis.health_metrics)) {
+                    metricsHtml += `<li><strong>${key}:</strong> ${value}</li>`;
+                }
+                metricsHtml += '</ul></div>';
+                analysisDiv.innerHTML += metricsHtml;
+            }
+
+            if (analysis.exercises && analysis.exercises.length > 0) {
+                let exercisesHtml = '<div class="content-section"><h2>Exercises Recommended:</h2><ul>';
+                analysis.exercises.forEach(ex => {
+                    exercisesHtml += `<li>${ex}</li>`;
+                });
+                exercisesHtml += '</ul></div>';
+            }
+
+            if (analysis.dicom_image) {
+                const dicomImageHtml = `
+                    <div class="content-section">
+                        <h2>DICOM Image:</h2>
+                        <img src="data:image/png;base64,${analysis.dicom_image}" class="graph" alt="DICOM Image">
+                    </div>
+                `;
+                analysisDiv.innerHTML += dicomImageHtml;
+            }
+        }
+
+        function displayAnalysis(analysis) {
+            analysisDiv.innerHTML = '';
+
+            if (analysis.word_count !== undefined) {
+                analysisDiv.innerHTML += `<div class="content-section"><h2>Word Count:</h2><p>${analysis.word_count}</p></div>`;
+            }
+
+            if (analysis.rows !== undefined && analysis.columns !== undefined) {
+                analysisDiv.innerHTML += `<div class="content-section"><h2>Data Frame Summary:</h2>
+                    <p><strong>Rows:</strong> ${analysis.rows}</p>
+                    <p><strong>Columns:</strong> ${analysis.columns}</p>
+                </div>`;
+            }
+
+            if (analysis.column_summary) {
+                let columnSummaryHtml = '<div class="content-section"><h2>Column Summary:</h2><ul>';
+                for (const [col, summary] of Object.entries(analysis.column_summary)) {
+                    columnSummaryHtml += `<li><strong>${col}</strong> (Type: ${summary.data_type}) - Example Values: ${summary.example_values.join(', ')}</li>`;
+                }
+                columnSummaryHtml += '</ul></div>';
+                analysisDiv.innerHTML += columnSummaryHtml;
+            }
+
+            if (analysis.description) {
+                analysisDiv.innerHTML += `<div class="content-section"><h2>Statistical Description:</h2><pre>${JSON.stringify(analysis.description, null, 2)}</pre></div>`;
+            }
+
+            if (analysis.summary) {
+                analysisDiv.innerHTML += `<div class="content-section"><h2>Summary:</h2><p>${analysis.summary}</p></div>`;
+            }
+
+            if (analysis.sentiment) {
+                analysisDiv.innerHTML += `
+                    <div class="content-section">
+                        <h2>Sentiment Analysis:</h2>
+                        <p>Polarity: ${analysis.sentiment.polarity}</p>
+                        <p>Subjectivity: ${analysis.sentiment.subjectivity}</p>
+                        <p>Positivity: ${analysis.sentiment.positivity}</p>
+                        <p>Negativity: ${analysis.sentiment.negativity}</p>
+                        <p>Neutrality: ${analysis.sentiment.neutrality}</p>
+                        <p>Compound Score: ${analysis.sentiment.compound}</p>
+                    </div>`;
+            }
+
+            if (analysis.wordcloud) {
+                const img = document.createElement('img');
+                img.src = `data:image/png;base64,${analysis.wordcloud}`;
+                img.alt = 'Word Cloud';
+                img.className = 'graph';
+                analysisDiv.appendChild(img);
+            }
+
+            if (analysis.graphs) {
+                if (analysis.graphs.histogram) {
+                    const img = document.createElement('img');
+                    img.src = `data:image/png;base64,${analysis.graphs.histogram}`;
+                    img.alt = 'Histogram';
+                    img.className = 'graph';
+                    analysisDiv.appendChild(img);
+                }
+
+                if (analysis.graphs.bar_chart) {
+                    const img = document.createElement('img');
+                    img.src = `data:image/png;base64,${analysis.graphs.bar_chart}`;
+                    img.alt = 'Bar Chart';
+                    img.className = 'graph';
+                    analysisDiv.appendChild(img);
+                }
+
+                if (analysis.graphs.pie_chart) {
+                    const img = document.createElement('img');
+                    img.src = `data:image/png;base64,${analysis.graphs.pie_chart}`;
+                    img.alt = 'Pie Chart';
+                    img.className = 'graph';
+                    analysisDiv.appendChild(img);
+                }
+            }
+        }
+
+        function sendFeedback(isHelpful) {
+            const feedback = {
+                question: questionInput.value,
+                answer: responseArea.value,
+                helpful: isHelpful
+            };
+            fetch('/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feedback)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Thank you for your feedback!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
